@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Mapa Emocji – Nawigator emocji</title>
+  <title>Mapa Emocji – Nawigator emocji Marii Rybarskiej</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /* Globalne ustawienie box-sizing */
@@ -29,6 +29,12 @@
       max-width: 600px;
       margin: 0 auto;
     }
+    /* Podtytuł pojawiający się tylko na głównym ekranie */
+    #mainSubheader {
+      font-size: 1.2em;
+      color: #333;
+      margin-bottom: 10px;
+    }
     /* Ekran główny – lista głównych emocji w ramce */
     #mainMenu {
       display: flex;
@@ -49,14 +55,14 @@
     #mainMenu .main-item:active {
       transform: scale(0.98);
     }
-    /* Kolory głównych emocji */
-    .emotion-Złość       { background-color: #d9534f; }
-    .emotion-Lęk         { background-color: #5bc0de; }
-    .emotion-Źle         { background-color: #f0ad4e; }
-    .emotion-Zdegustowany { background-color: #8a6d3b; }
-    .emotion-Szczęście   { background-color: #5cb85c; }
-    .emotion-Zaskoczenie { background-color: #ffdd00; }
-    .emotion-Smutny      { background-color: #6c757d; }
+    /* Kolory głównych emocji – możesz dostosować kolory według własnej palety */
+    .emotion-Zły             { background-color: #d9534f; }
+    .emotion-Zlękniony       { background-color: #5bc0de; }
+    .emotion-Czuję_się_źle   { background-color: #f0ad4e; }
+    .emotion-Zdegustowany    { background-color: #8a6d3b; }
+    .emotion-Szczęśliwy      { background-color: #5cb85c; }
+    .emotion-Zaskoczony      { background-color: #ffdd00; }
+    .emotion-Smutny          { background-color: #6c757d; }
     /* Przycisk Archiwum */
     #archiveBtn {
       margin-top: 20px;
@@ -134,7 +140,7 @@
       gap: 5px;
     }
     .third-item {
-      background-color: #ced4da;
+      background-color: #ced4da; /* jednolity, jasny kolor */
       padding: 8px;
       border-radius: 3px;
       font-size: 0.9em;
@@ -149,7 +155,7 @@
     .selected {
       background-color: #a0c4ff !important;
     }
-    /* Pole tekstowe do notatki na ekranie 3 */
+    /* Pole tekstowe do notatki (na ekranie 3) */
     #noteInput {
       width: 100%;
       height: 80px;
@@ -265,12 +271,13 @@
     <h1>Nawigator emocji</h1>
     <p id="mainSubheader">Impuls z ciała mówi mi że jestem...</p>
     <div id="mainMenu">
-      <div class="main-item emotion-Złość" onclick="showSecondScreen('Złość')"><strong>Złość</strong></div>
-      <div class="main-item emotion-Lęk" onclick="showSecondScreen('Lęk')"><strong>Lęk</strong></div>
-      <div class="main-item emotion-Źle" onclick="showSecondScreen('Źle')"><strong>Źle</strong></div>
+      <!-- Zmienione etykiety głównych emocji -->
+      <div class="main-item emotion-Zły" onclick="showSecondScreen('Zły')"><strong>Zły</strong></div>
+      <div class="main-item emotion-Zlękniony" onclick="showSecondScreen('Zlękniony')"><strong>Zlękniony</strong></div>
+      <div class="main-item emotion-Czuję_się_źle" onclick="showSecondScreen('Czuję się źle')"><strong>Czuję się źle</strong></div>
       <div class="main-item emotion-Zdegustowany" onclick="showSecondScreen('Zdegustowany')"><strong>Zdegustowany</strong></div>
-      <div class="main-item emotion-Szczęście" onclick="showSecondScreen('Szczęście')"><strong>Szczęście</strong></div>
-      <div class="main-item emotion-Zaskoczenie" onclick="showSecondScreen('Zaskoczenie')"><strong>Zaskoczenie</strong></div>
+      <div class="main-item emotion-Szczęśliwy" onclick="showSecondScreen('Szczęśliwy')"><strong>Szczęśliwy</strong></div>
+      <div class="main-item emotion-Zaskoczony" onclick="showSecondScreen('Zaskoczony')"><strong>Zaskoczony</strong></div>
       <div class="main-item emotion-Smutny" onclick="showSecondScreen('Smutny')"><strong>Smutny</strong></div>
       <button id="archiveBtn" onclick="showArchive()">Archiwum</button>
     </div>
@@ -302,7 +309,7 @@
   <script>
     // Obiekt danych – hierarchia emocji wg Twojej struktury
     const emotionData = {
-      "Złość": {
+      "Zły": {
         color: "#d9534f",
         secondOrder: [
           { name: "Zawiedziony", thirdOrder: ["Zdradzony", "Oszukany", "Porzucony", "Wykorzystany", "Pełen urazy", "Rozgoryczony"] },
@@ -315,7 +322,7 @@
           { name: "Krytyczny", thirdOrder: ["Lekceważący", "Pogardliwy", "Wyniosły", "Nieufny", "Podejrzliwy", "Ostrożny w ocenach"] }
         ]
       },
-      "Lęk": {
+      "Zlękniony": {
         color: "#5bc0de",
         secondOrder: [
           { name: "Przestraszony", thirdOrder: ["Bezradny", "Bezsilny", "Zdany na łaskę innych", "Pełen obaw"] },
@@ -326,7 +333,7 @@
           { name: "Zagrożony", thirdOrder: ["Spięty", "Niespokojny", "Narażony", "Bezbronny", "Niepewny"] }
         ]
       },
-      "Źle": {
+      "Czuję się źle": {
         color: "#f0ad4e",
         secondOrder: [
           { name: "Znudzony", thirdOrder: ["Obojętny", "Niewzruszony", "Bez energii", "Znużony"] },
@@ -344,7 +351,7 @@
           { name: "Coś mnie odrzuca", thirdOrder: ["Niechętny", "Zdystansowany", "Nieprzekonany"] }
         ]
       },
-      "Szczęście": {
+      "Szczęśliwy": {
         color: "#5cb85c",
         secondOrder: [
           { name: "Rozbawiony", thirdOrder: ["Figlarny", "Żartobliwy", "Podniecony", "Pobudzony", "Nakręcony", "Zawadiacki", "Śmiały"] },
@@ -357,7 +364,7 @@
           { name: "Ufny", thirdOrder: ["Wrażliwy", "Empatyczny", "Uważny", "Subtelny", "Delikatny", "Ciepły", "Osobisty", "Serdeczny"] }
         ]
       },
-      "Zaskoczenie": {
+      "Zaskoczony": {
         color: "#ffdd00",
         secondOrder: [
           { name: "Zdziwienie", thirdOrder: ["Nagłe zdumienie", "Poczucie niedowierzania", "Niespodziewany impuls", "Ciekawość"] },
@@ -389,7 +396,6 @@
     // Funkcja przechodząca do ekranu drugiego poziomu (emocje 2. rzędu)
     function showSecondScreen(main) {
       selectedMain = main;
-      // Ukryj cały główny ekran
       document.getElementById('mainScreen').style.display = 'none';
       document.getElementById('secondTitle').innerText = "Odczuwam teraz...";
       
@@ -491,6 +497,7 @@
           const reflDiv = document.createElement("div");
           reflDiv.className = "reflection";
           if (entry.reflection.trim() === "") {
+            // Jeśli refleksja nie jest zapisana, pokaż pole tekstowe z przyciskami
             const reflTextarea = document.createElement("textarea");
             reflTextarea.placeholder = "Co takiego jest w Tobie, że to odczułeś? O jakiej Twojej potrzebie mówi ta reakcja? Inne refleksje";
             reflTextarea.value = "";
@@ -515,6 +522,7 @@
             reflDiv.appendChild(editBtn);
             reflDiv.appendChild(saveReflBtn);
           } else {
+            // Jeśli refleksja została zapisana – wyświetl ją jako tekst
             reflDiv.innerHTML = `<p>${entry.reflection}</p>`;
             addReflectionButtons(reflDiv, index);
           }
