@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa Emocji – Nawigator emocji</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Globalne ustawienie box-sizing */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      text-align: center;
+    }
+    h1, h2, p {
+      margin: 0 0 20px;
+    }
+    /* Kontener głównego ekranu */
+    #mainScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    /* Ekran główny – lista głównych emocji w ramce */
+    #mainMenu {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    #mainMenu .main-item {
+      padding: 15px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: transform 0.1s;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    #mainMenu .main-item:active {
+      transform: scale(0.98);
+    }
+    /* Kolory głównych emocji */
+    .emotion-Złość       { background-color: #d9534f; }
+    .emotion-Lęk         { background-color: #5bc0de; }
+    .emotion-Źle         { background-color: #f0ad4e; }
+    .emotion-Zdegustowany { background-color: #8a6d3b; }
+    .emotion-Szczęście   { background-color: #5cb85c; }
+    .emotion-Zaskoczenie { background-color: #ffdd00; }
+    .emotion-Smutny      { background-color: #6c757d; }
+    /* Przycisk Archiwum */
+    #archiveBtn {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 1em;
+      background-color: #aaa;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    #archiveBtn:hover {
+      background-color: #888;
+    }
+    /* Ekran drugiego poziomu – emocje 2. rzędu */
+    #secondView {
+      display: none;
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      text-align: left;
+    }
+    #secondView h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    .second-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .second-item {
+      padding: 12px;
+      border-radius: 5px;
+      background-color: #eee;
+      cursor: pointer;
+      font-weight: bold;
+      text-align: center;
+    }
+    .second-item:active {
+      transform: scale(0.98);
+    }
+    /* Ekran trzeciego poziomu – emocje 3. rzędu + pole notatki */
+    #thirdView {
+      display: none;
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      text-align: left;
+    }
+    #thirdView h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    .third-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .third-item {
+      background-color: #ced4da;
+      padding: 8px;
+      border-radius: 3px;
+      font-size: 0.9em;
+      cursor: pointer;
+      text-align: center;
+      border: 1px solid #fff;
+      transition: transform 0.1s;
+    }
+    .third-item:active {
+      transform: scale(0.98);
+    }
+    .selected {
+      background-color: #a0c4ff !important;
+    }
+    /* Pole tekstowe do notatki na ekranie 3 */
+    #noteInput {
+      width: 100%;
+      height: 80px;
+      margin: 15px 0;
+      padding: 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical;
+    }
+    /* Przycisk zapisu wpisu */
+    #saveBtn {
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #5cb85c;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    #saveBtn:active {
+      transform: scale(0.98);
+    }
+    /* Widok archiwum */
+    #archiveView {
+      display: none;
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      text-align: left;
+    }
+    #archiveView h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    #archiveView ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #archiveView li {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+      font-size: 0.9em;
+    }
+    .reflection {
+      margin-top: 8px;
+    }
+    .reflection p {
+      background-color: transparent;
+      padding: 6px;
+      border: none;
+      margin: 0 0 4px;
+      font-size: 0.9em;
+      text-align: left;
+    }
+    .reflection textarea {
+      width: 100%;
+      height: 60px;
+      padding: 6px;
+      font-size: 0.9em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+      margin-bottom: 4px;
+    }
+    .reflection button {
+      margin-right: 4px;
+      padding: 6px 12px;
+      font-size: 0.9em;
+      background-color: #5cb85c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* Media query dla mniejszych ekranów */
+    @media (max-width: 400px) {
+      h1, h2 {
+        font-size: 1.5em;
+      }
+      .main-item {
+        padding: 12px;
+        font-size: 1em;
+      }
+      #secondView, #thirdView, #archiveView {
+        padding: 15px;
+      }
+      .second-item, .third-item {
+        font-size: 0.8em;
+        padding: 6px;
+      }
+      #noteInput {
+        font-size: 0.9em;
+      }
+      #saveBtn, .back-btn, #archiveBtn, .reflection button {
+        font-size: 0.9em;
+        padding: 8px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Ekran Główny -->
+  <div id="mainScreen">
+    <h1>Nawigator emocji</h1>
+    <p id="mainSubheader">Impuls z ciała mówi mi że jestem...</p>
+    <div id="mainMenu">
+      <div class="main-item emotion-Złość" onclick="showSecondScreen('Złość')"><strong>Złość</strong></div>
+      <div class="main-item emotion-Lęk" onclick="showSecondScreen('Lęk')"><strong>Lęk</strong></div>
+      <div class="main-item emotion-Źle" onclick="showSecondScreen('Źle')"><strong>Źle</strong></div>
+      <div class="main-item emotion-Zdegustowany" onclick="showSecondScreen('Zdegustowany')"><strong>Zdegustowany</strong></div>
+      <div class="main-item emotion-Szczęście" onclick="showSecondScreen('Szczęście')"><strong>Szczęście</strong></div>
+      <div class="main-item emotion-Zaskoczenie" onclick="showSecondScreen('Zaskoczenie')"><strong>Zaskoczenie</strong></div>
+      <div class="main-item emotion-Smutny" onclick="showSecondScreen('Smutny')"><strong>Smutny</strong></div>
+      <button id="archiveBtn" onclick="showArchive()">Archiwum</button>
+    </div>
+  </div>
+  
+  <!-- Ekran Drugiego Poziomu: Emocje 2. rzędu -->
+  <div id="secondView">
+    <h2 id="secondTitle">Odczuwam teraz...</h2>
+    <ul id="secondList" class="second-list"></ul>
+    <button class="back-btn" onclick="backToMain()">Powrót</button>
+  </div>
+  
+  <!-- Ekran Trzeciego Poziomu: Emocje 3. rzędu + pole notatki -->
+  <div id="thirdView">
+    <h2 id="thirdTitle">Mogę więc powiedzieć, że jestem...</h2>
+    <ul id="thirdList" class="third-list"></ul>
+    <textarea id="noteInput" placeholder="Opisz sytuację..."></textarea>
+    <button id="saveBtn" onclick="saveEntry()">Zapisz wpis</button>
+    <button class="back-btn" onclick="backToSecond()">Powrót</button>
+  </div>
+  
+  <!-- Widok Archiwum -->
+  <div id="archiveView">
+    <h2>Archiwum</h2>
+    <ul id="archiveList"></ul>
+    <button class="back-btn" onclick="backToMain()">Powrót do menu</button>
+  </div>
+  
+  <script>
+    // Obiekt danych – hierarchia emocji wg Twojej struktury
+    const emotionData = {
+      "Złość": {
+        color: "#d9534f",
+        secondOrder: [
+          { name: "Zawiedziony", thirdOrder: ["Zdradzony", "Oszukany", "Porzucony", "Wykorzystany", "Pełen urazy", "Rozgoryczony"] },
+          { name: "Upokorzony", thirdOrder: ["Zlekceważony", "Poniżony", "Nieszanowany", "Ośmieszony", "Upokorzony", "Wyszydzony"] },
+          { name: "Zgorzkniały", thirdOrder: ["Urażony", "Pełen pretensji", "Skrzywdzony", "Oszukany", "Potraktowany niesprawiedliwie"] },
+          { name: "Wściekły", thirdOrder: ["Rozjuszony", "Kipiący ze złości", "Zawistny", "Zaborczy", "Rywalizujący"] },
+          { name: "Agresywny", thirdOrder: ["Sprowokowany", "Doprowadzony do szału", "Wrogo nastawiony", "Nienawistny", "Wojowniczy", "Nieprzyjazny"] },
+          { name: "Sfrustrowany", thirdOrder: ["Rozwścieczony", "Wyprowadzony z równowagi", "Zniecierpliwiony", "Zirytowany"] },
+          { name: "Zdystansowany", thirdOrder: ["Zamknięty w sobie", "Oddalony", "Nieczuły", "Wycofany", "Zobojętniały"] },
+          { name: "Krytyczny", thirdOrder: ["Lekceważący", "Pogardliwy", "Wyniosły", "Nieufny", "Podejrzliwy", "Ostrożny w ocenach"] }
+        ]
+      },
+      "Lęk": {
+        color: "#5bc0de",
+        secondOrder: [
+          { name: "Przestraszony", thirdOrder: ["Bezradny", "Bezsilny", "Zdany na łaskę innych", "Pełen obaw"] },
+          { name: "Niespokojny", thirdOrder: ["Przytłoczony", "Przeciążony", "Zdominowany", "Sparaliżowany", "Zmartwiony", "Niespokojny", "Spięty"] },
+          { name: "Niepewny siebie", thirdOrder: ["Nieudolny", "Niekompetentny", "Gorszy", "Mniej wartościowy", "Poniżony", "Zakompleksiony"] },
+          { name: "Słaby", thirdOrder: ["Nieistotny", "Nieważny", "Nic nie warty", "Nieznaczący", "Pomijany", "Bagatelizowany", "Niedostrzegany"] },
+          { name: "Odrzucony", thirdOrder: ["Wykluczony", "Odsunięty", "Izolowany", "Szykanowany", "Dręczony", "Gnębiony"] },
+          { name: "Zagrożony", thirdOrder: ["Spięty", "Niespokojny", "Narażony", "Bezbronny", "Niepewny"] }
+        ]
+      },
+      "Źle": {
+        color: "#f0ad4e",
+        secondOrder: [
+          { name: "Znudzony", thirdOrder: ["Obojętny", "Niewzruszony", "Bez energii", "Znużony"] },
+          { name: "Zabiegany", thirdOrder: ["Pod presją", "Przeciążony", "Obciążony", "Pośpieszany", "Spięty", "Goniony czasem"] },
+          { name: "Zestresowany", thirdOrder: ["Przytłoczony", "Przepracowany", "Zmęczony", "Niepanujący nad sytuacją", "Chaotyczny", "Zagubiony", "Spanikowany"] },
+          { name: "Zmęczony", thirdOrder: ["Ospały", "Niemrawy", "Rozproszony", "Rozkojarzony"] }
+        ]
+      },
+      "Zdegustowany": {
+        color: "#8a6d3b",
+        secondOrder: [
+          { name: "Nieprzychylność", thirdOrder: ["Osądzający", "Pogardliwy", "Traktujący z wyższością", "Krytyczny", "Zażenowany sytuacją"] },
+          { name: "Rozczarowanie", thirdOrder: ["Zgorszony", "Zniesmaczony", "Zniechęcony"] },
+          { name: "Wstręt", thirdOrder: ["Przyprawiony o mdłości", "Czujący niesmak", "Niezdolny do zaakceptowania"] },
+          { name: "Coś mnie odrzuca", thirdOrder: ["Niechętny", "Zdystansowany", "Nieprzekonany"] }
+        ]
+      },
+      "Szczęście": {
+        color: "#5cb85c",
+        secondOrder: [
+          { name: "Rozbawiony", thirdOrder: ["Figlarny", "Żartobliwy", "Podniecony", "Pobudzony", "Nakręcony", "Zawadiacki", "Śmiały"] },
+          { name: "Radosny", thirdOrder: ["Wesoły", "Wolny", "Nieskrępowany", "Beztroski", "Promienny", "Zadowolony"] },
+          { name: "Zainteresowany", thirdOrder: ["Zaciekawiony", "Wnikliwy", "Badawczy", "Przenikliwy"] },
+          { name: "Dumny", thirdOrder: ["Spełniony", "Uznany", "Zwycięski", "Pewny siebie", "Przekonany o własnej wartości"] },
+          { name: "Akceptowany", thirdOrder: ["Doceniany", "Szanowany", "Traktowany z szacunkiem", "Ważny"] },
+          { name: "Silny", thirdOrder: ["Odważny", "Śmiały", "Kreatywny", "Twórczy", "Pełen wyobraźni", "Pomysłowy"] },
+          { name: "Spokojny", thirdOrder: ["Kochający", "Czuły", "Troskliwy", "Opiekuńczy", "Wdzięczny", "Doceniający"] },
+          { name: "Ufny", thirdOrder: ["Wrażliwy", "Empatyczny", "Uważny", "Subtelny", "Delikatny", "Ciepły", "Osobisty", "Serdeczny"] }
+        ]
+      },
+      "Zaskoczenie": {
+        color: "#ffdd00",
+        secondOrder: [
+          { name: "Zdziwienie", thirdOrder: ["Nagłe zdumienie", "Poczucie niedowierzania", "Niespodziewany impuls", "Ciekawość"] },
+          { name: "Szok", thirdOrder: ["Przeciążenie informacyjne", "Chwila zatrzymania", "Poczucie nierealności", "Nagły impuls emocjonalny"] },
+          { name: "Inspiracja", thirdOrder: ["Nowe możliwości", "Kreatywne przebudzenie", "Impuls do zmiany", "Odkrywcze uniesienie"] }
+        ]
+      },
+      "Smutny": {
+        color: "#6c757d",
+        secondOrder: [
+          { name: "Zraniony", thirdOrder: ["Zawstydzony", "Upokorzony", "Rozczarowany"] },
+          { name: "Przygnębiony, w depresji", thirdOrder: ["Gorszy", "Bezwartościowy", "Poniżony", "Pozbawiony sensu", "Pusty w środku"] },
+          { name: "Winny", thirdOrder: ["Pełen skruchy", "Żałujący", "Pełen wyrzutów sumienia", "Zawstydzony", "Zakłopotany", "Zażenowany"] },
+          { name: "Rozpacz", thirdOrder: ["Żałoba", "Cierpienie", "Ból emocjonalny", "Bezsilność", "Bez nadziei", "Bez kontroli", "Uwięziony w sytuacji"] },
+          { name: "Bezbronny", thirdOrder: ["Wykorzystywany", "Oszukany", "Kruchy", "Wrażliwy"] },
+          { name: "Samotny", thirdOrder: ["Wykluczony", "Odseparowany", "Niechciany", "Odtrącony", "Porzucony"] }
+        ]
+      }
+    };
+    
+    // Tablica do przechowywania wpisów w archiwum
+    const archive = [];
+    
+    // Globalne zmienne do przechowywania wybranych opcji
+    let selectedMain = "";
+    let selectedSecond = "";
+    let selectedThird = "";
+    
+    // Funkcja przechodząca do ekranu drugiego poziomu (emocje 2. rzędu)
+    function showSecondScreen(main) {
+      selectedMain = main;
+      // Ukryj cały główny ekran
+      document.getElementById('mainScreen').style.display = 'none';
+      document.getElementById('secondTitle').innerText = "Odczuwam teraz...";
+      
+      const secondList = document.getElementById('secondList');
+      secondList.innerHTML = "";
+      
+      if (emotionData[main] && emotionData[main].secondOrder) {
+        emotionData[main].secondOrder.forEach(item => {
+          const li = document.createElement("li");
+          li.className = "second-item";
+          li.textContent = item.name;
+          li.onclick = function() { showThirdScreen(main, item); };
+          secondList.appendChild(li);
+        });
+      } else {
+        secondList.innerHTML = "<li>Brak danych</li>";
+      }
+      
+      document.getElementById('secondView').style.display = 'block';
+    }
+    
+    // Funkcja przechodząca do ekranu trzeciego poziomu (emocje 3. rzędu + notatka)
+    function showThirdScreen(main, secondItem) {
+      selectedSecond = secondItem.name;
+      document.getElementById('secondView').style.display = 'none';
+      document.getElementById('thirdTitle').innerText = "Mogę więc powiedzieć, że jestem...";
+      
+      const thirdList = document.getElementById('thirdList');
+      thirdList.innerHTML = "";
+      
+      if (secondItem.thirdOrder) {
+        secondItem.thirdOrder.forEach(third => {
+          const li = document.createElement("li");
+          li.className = "third-item";
+          li.textContent = third;
+          li.onclick = function(event) { selectThird(event, third); };
+          thirdList.appendChild(li);
+        });
+      } else {
+        thirdList.innerHTML = "<li>Brak danych</li>";
+      }
+      
+      document.getElementById('thirdView').style.display = 'block';
+    }
+    
+    // Funkcja zaznaczająca wybraną emocję 3. rzędu
+    function selectThird(event, third) {
+      selectedThird = third;
+      const items = document.querySelectorAll('.third-item');
+      items.forEach(item => item.classList.remove('selected'));
+      event.target.classList.add('selected');
+    }
+    
+    // Funkcja zapisująca wpis (wszystkie poziomy + notatka) do archiwum
+    function saveEntry() {
+      const note = document.getElementById('noteInput').value.trim();
+      const timestamp = new Date().toLocaleString();
+      const entry = {
+        main: selectedMain,
+        second: selectedSecond,
+        third: selectedThird,
+        note: note,
+        reflection: "", // początkowo pusta refleksja
+        time: timestamp
+      };
+      archive.push(entry);
+      alert("Wpis zapisany!");
+      document.getElementById('noteInput').value = "";
+      backToMain();
+    }
+    
+    // Funkcja powrotu do menu głównego
+    function backToMain() {
+      document.getElementById('secondView').style.display = 'none';
+      document.getElementById('thirdView').style.display = 'none';
+      document.getElementById('archiveView').style.display = 'none';
+      document.getElementById('mainScreen').style.display = 'flex';
+    }
+    
+    // Funkcja powrotu do ekranu drugiego poziomu
+    function backToSecond() {
+      document.getElementById('thirdView').style.display = 'none';
+      document.getElementById('secondView').style.display = 'block';
+    }
+    
+    // Funkcja wyświetlająca widok archiwum
+    function showArchive() {
+      document.getElementById('mainScreen').style.display = 'none';
+      const archiveList = document.getElementById('archiveList');
+      archiveList.innerHTML = "";
+      if (archive.length === 0) {
+        archiveList.innerHTML = "<li>Brak zapisów.</li>";
+      } else {
+        archive.forEach((entry, index) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${entry.time}</strong>: <em>${entry.main}</em> / ${entry.second} / ${entry.third} – ${entry.note}`;
+          
+          // Dodaj sekcję refleksji:
+          const reflDiv = document.createElement("div");
+          reflDiv.className = "reflection";
+          if (entry.reflection.trim() === "") {
+            const reflTextarea = document.createElement("textarea");
+            reflTextarea.placeholder = "Co takiego jest w Tobie, że to odczułeś? O jakiej Twojej potrzebie mówi ta reakcja? Inne refleksje";
+            reflTextarea.value = "";
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "Edytuj refleksję";
+            editBtn.onclick = function() {
+              reflTextarea.disabled = false;
+            };
+            const saveReflBtn = document.createElement("button");
+            saveReflBtn.textContent = "Zapisz refleksję";
+            saveReflBtn.onclick = function() {
+              entry.reflection = reflTextarea.value.trim();
+              if (entry.reflection !== "") {
+                reflDiv.innerHTML = `<p>${entry.reflection}</p>`;
+              } else {
+                reflDiv.innerHTML = "";
+              }
+              addReflectionButtons(reflDiv, index);
+              alert("Refleksja zapisana!");
+            };
+            reflDiv.appendChild(reflTextarea);
+            reflDiv.appendChild(editBtn);
+            reflDiv.appendChild(saveReflBtn);
+          } else {
+            reflDiv.innerHTML = `<p>${entry.reflection}</p>`;
+            addReflectionButtons(reflDiv, index);
+          }
+          li.appendChild(reflDiv);
+          archiveList.appendChild(li);
+        });
+      }
+      document.getElementById('archiveView').style.display = 'block';
+    }
+    
+    // Funkcja pomocnicza do dodania przycisków edycji refleksji w archiwum
+    function addReflectionButtons(container, index) {
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Edytuj refleksję";
+      editBtn.onclick = function() {
+        const currentText = container.querySelector("p").textContent;
+        container.innerHTML = "";
+        const reflTextarea = document.createElement("textarea");
+        reflTextarea.value = currentText;
+        reflTextarea.style.width = "100%";
+        reflTextarea.style.height = "60px";
+        const saveBtn = document.createElement("button");
+        saveBtn.textContent = "Zapisz refleksję";
+        saveBtn.onclick = function() {
+          archive[index].reflection = reflTextarea.value.trim();
+          container.innerHTML = `<p>${archive[index].reflection}</p>`;
+          addReflectionButtons(container, index);
+          alert("Refleksja zapisana!");
+        };
+        container.appendChild(reflTextarea);
+        container.appendChild(saveBtn);
+      };
+      if (!container.querySelector("textarea")) {
+        container.appendChild(editBtn);
+      }
+    }
+  </script>
+  
+  <!-- Ukryte kontenery dla ekranów drugiego, trzeciego poziomu oraz archiwum -->
+  <div id="secondView">
+    <h2 id="secondTitle">Odczuwam teraz...</h2>
+    <ul id="secondList" class="second-list"></ul>
+    <button class="back-btn" onclick="backToMain()">Powrót</button>
+  </div>
+  
+  <div id="thirdView">
+    <h2 id="thirdTitle">Mogę więc powiedzieć, że jestem...</h2>
+    <ul id="thirdList" class="third-list"></ul>
+    <textarea id="noteInput" placeholder="Opisz sytuację..."></textarea>
+    <button id="saveBtn" onclick="saveEntry()">Zapisz wpis</button>
+    <button class="back-btn" onclick="backToSecond()">Powrót</button>
+  </div>
+  
+  <div id="archiveView">
+    <h2>Archiwum</h2>
+    <ul id="archiveList"></ul>
+    <button class="back-btn" onclick="backToMain()">Powrót do menu</button>
+  </div>
+  
+</body>
+</html>
